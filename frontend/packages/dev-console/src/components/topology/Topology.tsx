@@ -20,6 +20,8 @@ import TopologySideBar from './TopologySideBar';
 import { ActionProviders } from './actions-providers';
 import TopologyApplicationPanel from './TopologyApplicationPanel';
 import TopologyResourcePanel from './TopologyResourcePanel';
+import { Button } from '@patternfly/react-core';
+import { trafficModalLauncher } from './TrafficSplittingModal';
 
 type State = {
   selected?: string;
@@ -220,6 +222,21 @@ export default class Topology extends React.Component<TopologyProps, State> {
           onRemoveConnection={this.onRemoveConnection}
           graphApiRef={this.graphApiRef}
         />
+        <Button
+          variant="link"
+          isInline
+          onClick={() =>
+            trafficModalLauncher({
+              revisions: {
+                one: 'one',
+                two: 'two',
+              },
+              inprogress: false,
+            })
+          }
+        >
+          Click Me
+        </Button>
       </TopologyView>
     );
   }

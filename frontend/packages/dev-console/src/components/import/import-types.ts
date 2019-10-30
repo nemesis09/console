@@ -62,7 +62,6 @@ export interface GitImportFormData {
   deployment: DeploymentData;
   labels: { [name: string]: string };
   limits: LimitsData;
-  trafficSplit: TrafficSplitData;
 }
 
 export interface ApplicationData {
@@ -227,8 +226,4 @@ export enum CPUUnits {
 export enum MemoryUnits {
   Mi = 'Mi',
   Gi = 'Gi',
-}
-
-export interface TrafficSplitData {
-  value: string;
 }
