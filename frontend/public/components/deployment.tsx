@@ -25,6 +25,7 @@ import {
 import { ReplicaSetsPage } from './replicaset';
 import { WorkloadTableRow, WorkloadTableHeader } from './workload-table';
 import PodRingSet from '@console/shared/src/components/pod/PodRingSet';
+import { TrafficSplittingAction } from '@console/knative-plugin/src/components/modals/traffic-spliting-action';
 
 const deploymentsReference: K8sResourceKindReference = 'Deployment';
 const { ModifyCount, AddStorage, common } = Kebab.factory;
@@ -58,6 +59,7 @@ export const menuActions = [
   PauseAction,
   AddStorage,
   UpdateStrategy,
+  TrafficSplittingAction,
   ...Kebab.getExtensionsActionsForKind(DeploymentModel),
   ...common,
 ];
