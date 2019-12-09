@@ -25,6 +25,7 @@ export enum ActionType {
   SetCreateProjectMessage = 'setCreateProjectMessage',
   SetCurrentLocation = 'setCurrentLocation',
   SetMonitoringData = 'setMonitoringData',
+  SetTopologyDisplayFilters = 'setTopologyDisplayFilters',
   ToggleMonitoringGraphs = 'monitoringToggleGraphs',
   QueryBrowserAddQuery = 'queryBrowserAddQuery',
   QueryBrowserDeleteAllQueries = 'queryBrowserDeleteAllQueries',
@@ -167,6 +168,10 @@ export const setActivePerspective = (perspective: string) => {
   return action(ActionType.SetActivePerspective, { perspective });
 };
 
+export const setTopologyDisplayFilters = (topologyDisplayFilters) => {
+  return action(ActionType.SetTopologyDisplayFilters, { topologyDisplayFilters });
+};
+
 export const beginImpersonate = (kind: string, name: string, subprotocols: string[]) =>
   action(ActionType.BeginImpersonate, { kind, name, subprotocols });
 export const endImpersonate = () => action(ActionType.EndImpersonate);
@@ -302,6 +307,7 @@ const uiActions = {
   setActiveApplication,
   setActiveNamespace,
   setActivePerspective,
+  setTopologyDisplayFilters,
   beginImpersonate,
   endImpersonate,
   sortList,

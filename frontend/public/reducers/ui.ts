@@ -36,6 +36,13 @@ export function getDefaultPerspective() {
   return activePerspective || undefined;
 }
 
+export const getDefaultTopologyDisplayFilters = () => {
+  // get filters from local storage
+  return ImmutableMap({
+    showPodCount: false,
+  });
+};
+
 const newQueryBrowserQuery = (): ImmutableMap<string, any> =>
   ImmutableMap({
     id: _.uniqueId('query-browser-query'),
@@ -67,6 +74,7 @@ export default (state: UIState, action: UIAction): UIState => {
       activeApplication: ALL_APPLICATIONS_KEY,
       activePerspective: getDefaultPerspective(),
       createProjectMessage: '',
+      topologyDisplayFilters: getDefaultTopologyDisplayFilters(),
       overview: ImmutableMap({
         metrics: {},
         resources: ImmutableMap({}),
@@ -111,6 +119,10 @@ export default (state: UIState, action: UIAction): UIState => {
       }
       return state.set('activeNamespace', ns);
     }
+
+    case ActionType.SetTopologyDisplayFilters:
+      return state.set('topologyDisplayFilters', action.payload.topologyDisplayFilters);
+
     case ActionType.BeginImpersonate:
       return state.set('impersonate', {
         kind: action.payload.kind,
@@ -307,3 +319,6 @@ export const getActiveNamespace = ({ UI }: RootState): string => UI.get('activeN
 export const getActivePerspective = ({ UI }: RootState): string => UI.get('activePerspective');
 
 export const getActiveApplication = ({ UI }: RootState): string => UI.get('activeApplication');
+
+export const getTopologyDisplayFilters = ({ UI }: RootState): any =>
+  UI.get('topologyDisplayFilters');
