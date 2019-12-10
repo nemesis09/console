@@ -45,8 +45,6 @@ export interface TopologyDataControllerProps extends StateProps {
   serviceBinding: boolean;
 }
 
-const allowedResources = ['deployments', 'deploymentConfigs', 'daemonSets', 'statefulSets'];
-
 const Controller: React.FC<ControllerProps> = ({
   render,
   application,
@@ -102,7 +100,6 @@ export const TopologyDataController: React.FC<TopologyDataControllerProps> = ({
       },
     );
   }
-  console.log('################1', filters);
   return (
     <Firehose resources={resources}>
       <Controller

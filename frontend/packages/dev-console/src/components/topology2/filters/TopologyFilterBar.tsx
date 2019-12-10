@@ -1,12 +1,13 @@
 import * as React from 'react';
+import { connect, Dispatch } from 'react-redux';
 import { Toolbar, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
-import './TopologyFilterBar.scss';
 import { RootState } from '@console/internal/redux';
 import { getTopologyFilters } from '@console/internal/reducers/ui';
-import { connect, Dispatch } from 'react-redux';
 import { setTopologyFilters } from '@console/internal/actions/ui';
+import { TextFilter } from '@console/internal/components/factory';
 import FilterDropdown from './FilterDropdown';
 import { TopologyFilters, DisplayFilters } from './filter-utils';
+import './TopologyFilterBar.scss';
 
 type StateProps = {
   filters: TopologyFilters;
@@ -19,16 +20,25 @@ type DispatchProps = {
 type TopologyFilterBarProps = StateProps & DispatchProps;
 
 const TopologyFilterBar: React.FC<TopologyFilterBarProps> = ({ filters, onFilterChange }) => {
-  const onDisplayFilterChange = (displayFilters: DisplayFilters): void => {
-    const newFilters = { ...filters };
-    newFilters.display = displayFilters;
-    onFilterChange(newFilters);
-  };
+  const { display, searchQuery } = filters;
+  const onDisplayFilterChange = (displayFilters: DisplayFilters) =>
+    onFilterChange({ display: displayFilters, searchQuery });
+
+  const onSearchFilterChange = (e: React.KeyboardEvent) =>
+    onFilterChange({
+      display,
+      searchQuery: (e.target as HTMLInputElement).value,
+    });
   return (
     <Toolbar className="co-namespace-bar odc-toplogy-filter-bar">
-      <ToolbarGroup>
-        <ToolbarItem className="odc-toplogy-filter-bar-item">
+      <ToolbarGroup className="odc-toplogy-filter-bar__dropdown">
+        <ToolbarItem>
           <FilterDropdown filters={filters.display} onChange={onDisplayFilterChange} />
+        </ToolbarItem>
+      </ToolbarGroup>
+      <ToolbarGroup className="odc-toplogy-filter-bar__search">
+        <ToolbarItem>
+          <TextFilter label="name" onChange={onSearchFilterChange} />
         </ToolbarItem>
       </ToolbarGroup>
     </Toolbar>

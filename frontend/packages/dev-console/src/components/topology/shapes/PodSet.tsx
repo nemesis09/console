@@ -1,5 +1,13 @@
 import * as React from 'react';
-import { PodStatus, calculateRadius, getPodData } from '@console/shared';
+import {
+  PodStatus,
+  calculateRadius,
+  getPodData,
+  podRingLabel,
+  usePodScalingAccessStatus,
+} from '@console/shared';
+import { modelFor } from '@console/internal/module/k8s';
+import { ChartLabel } from '@patternfly/react-charts';
 import { DonutStatusData } from '../topology-types';
 
 interface PodSetProps {
@@ -42,6 +50,14 @@ const PodSet: React.FC<PodSetProps> = ({ size, data, x = 0, y = 0, showPodCount 
     data.previous,
     data.isRollingOut,
   );
+  const accessAllowed = usePodScalingAccessStatus(
+    data.dc,
+    modelFor(data.dc.kind),
+    data.current.pods,
+    true,
+  );
+  const obj = data.current.obj || data.dc;
+  const { title, subTitle } = podRingLabel(obj, accessAllowed);
   return (
     <>
       <PodStatus
@@ -52,8 +68,16 @@ const PodSet: React.FC<PodSetProps> = ({ size, data, x = 0, y = 0, showPodCount 
         outerRadius={podStatusOuterRadius}
         data={completedDeploymentData}
         size={size}
-        title={showPodCount && (data.dc.status.availableReplicas || 0)}
-        subTitle={showPodCount && 'pods'}
+        subTitle={showPodCount && subTitle}
+        {...showPodCount &&
+          !accessAllowed && {
+            subTitleComponent: <ChartLabel style={{ fontSize: '14px' }} />,
+          }}
+        title={showPodCount && title}
+        {...showPodCount &&
+          !obj.status.availableReplicas && {
+            titleComponent: <ChartLabel style={{ fontSize: '14px' }} />,
+          }}
       />
       {inProgressDeploymentData && (
         <PodStatus

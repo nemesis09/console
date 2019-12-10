@@ -47,7 +47,7 @@ export const getDefaultTopologyFilters = () => {
       appGrouping: true,
       operatorGrouping: true,
     },
-    search: null,
+    searchQuery: null,
   };
 };
 

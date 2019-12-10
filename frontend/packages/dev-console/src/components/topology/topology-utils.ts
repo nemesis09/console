@@ -112,7 +112,6 @@ export const createTopologyNodeData = (
   type?: string,
   filters?: TopologyFilters,
 ): TopologyDataObject => {
-  console.log('################4', filters);
   const {
     obj: deploymentConfig,
     current,
@@ -306,7 +305,6 @@ export const transformTopologyData = (
   utils?: Function[],
   filters?: TopologyFilters,
 ): TopologyDataModel => {
-  console.log('################2', filters);
   const installedOperators = _.get(resources, 'clusterServiceVersion.data');
   const operatorBackedServiceKinds = [];
   const serviceBindingRequests = _.get(resources, 'serviceBindingRequests.data');
@@ -342,6 +340,7 @@ export const transformTopologyData = (
         utils,
         cheURL,
         application,
+        filters,
       );
       const {
         graph: { nodes, edges },
@@ -400,7 +399,6 @@ export const transformTopologyData = (
       transformResourceData[key](resourceData).forEach((item) => {
         const { obj: deploymentConfig } = item;
         const uid = _.get(deploymentConfig, ['metadata', 'uid']);
-        console.log('################3', filters);
         dataToShowOnNodes[uid] = createTopologyNodeData(
           item,
           operatorBackedServiceKinds,

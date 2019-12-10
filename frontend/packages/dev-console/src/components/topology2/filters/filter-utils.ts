@@ -12,7 +12,7 @@ export enum ExpandFiltersKeyValue {
 
 export type TopologyFilters = {
   display: DisplayFilters;
-  search: SearchFilter;
+  searchQuery: SearchFilter;
 };
 
 export type SearchFilter = string;

@@ -1,6 +1,9 @@
 .odc-toplogy-filter-bar {
   background-color: var(--pf-chart-global--Fill--Color--white);
-  &-item {
+  &__dropdown {
     margin: 6px 0;
+  }
+  &__search {
+    margin-left: auto;
   }
 }
