@@ -27,7 +27,7 @@ import { topologyModelFromDataModel } from './topology-utils';
 import { layoutFactory, COLA_LAYOUT, COLA_FORCE_LAYOUT } from './layouts/layoutFactory';
 import ComponentFactory from './componentFactory';
 import { TYPE_APPLICATION_GROUP } from './const';
-import TopologyFilterBar from './TopologyFilterBar';
+import TopologyFilterBar from './filters/TopologyFilterBar';
 
 export interface TopologyProps {
   data: TopologyDataModel;

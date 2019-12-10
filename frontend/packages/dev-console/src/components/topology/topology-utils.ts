@@ -23,6 +23,7 @@ import {
   removeServiceBinding,
   edgesFromServiceBinding,
 } from '../../utils/application-utils';
+import { TopologyFilters } from '../topology2/filters/filter-utils';
 import {
   TopologyDataModel,
   TopologyDataResources,
@@ -109,7 +110,9 @@ export const createTopologyNodeData = (
   operatorBackedServiceKinds: string[],
   cheURL?: string,
   type?: string,
+  filters?: TopologyFilters,
 ): TopologyDataObject => {
+  console.log('################4', filters);
   const {
     obj: deploymentConfig,
     current,
@@ -158,6 +161,7 @@ export const createTopologyNodeData = (
         isRollingOut,
         dc: deploymentConfig,
       },
+      showPodCount: filters && filters.display.podCount,
     },
   };
 };
@@ -300,7 +304,9 @@ export const transformTopologyData = (
   application?: string,
   cheURL?: string,
   utils?: Function[],
+  filters?: TopologyFilters,
 ): TopologyDataModel => {
+  console.log('################2', filters);
   const installedOperators = _.get(resources, 'clusterServiceVersion.data');
   const operatorBackedServiceKinds = [];
   const serviceBindingRequests = _.get(resources, 'serviceBindingRequests.data');
@@ -394,7 +400,14 @@ export const transformTopologyData = (
       transformResourceData[key](resourceData).forEach((item) => {
         const { obj: deploymentConfig } = item;
         const uid = _.get(deploymentConfig, ['metadata', 'uid']);
-        dataToShowOnNodes[uid] = createTopologyNodeData(item, operatorBackedServiceKinds, cheURL);
+        console.log('################3', filters);
+        dataToShowOnNodes[uid] = createTopologyNodeData(
+          item,
+          operatorBackedServiceKinds,
+          cheURL,
+          null,
+          filters,
+        );
         if (!_.some(topologyGraphAndNodeData.graph.nodes, { id: uid })) {
           nodesData = [...nodesData, getTopologyNodeItem(deploymentConfig)];
           edgesData = [

@@ -5,6 +5,7 @@ import { DonutStatusData } from '../topology-types';
 interface PodSetProps {
   size: number;
   data: DonutStatusData;
+  showPodCount?: boolean;
   x?: number;
   y?: number;
 }
@@ -26,7 +27,7 @@ const calculateInnerPodStatusRadius = (
   return { innerPodStatusOuterRadius, innerPodStatusInnerRadius };
 };
 
-const PodSet: React.FC<PodSetProps> = ({ size, data, x = 0, y = 0 }) => {
+const PodSet: React.FC<PodSetProps> = ({ size, data, x = 0, y = 0, showPodCount }) => {
   const { podStatusOuterRadius, podStatusInnerRadius, podStatusStrokeWidth } = calculateRadius(
     size,
   );
@@ -51,6 +52,8 @@ const PodSet: React.FC<PodSetProps> = ({ size, data, x = 0, y = 0 }) => {
         outerRadius={podStatusOuterRadius}
         data={completedDeploymentData}
         size={size}
+        title={showPodCount && (data.dc.status.availableReplicas || 0)}
+        subTitle={showPodCount && 'pods'}
       />
       {inProgressDeploymentData && (
         <PodStatus

@@ -36,11 +36,19 @@ export function getDefaultPerspective() {
   return activePerspective || undefined;
 }
 
-export const getDefaultTopologyDisplayFilters = () => {
-  // get filters from local storage
-  return ImmutableMap({
-    showPodCount: false,
-  });
+export const getDefaultTopologyFilters = () => {
+  // [TODO] get filters from local storage
+  return {
+    display: {
+      podCount: true,
+      setTraffic: true,
+      eventSources: true,
+      knativeServices: true,
+      appGrouping: true,
+      operatorGrouping: true,
+    },
+    search: null,
+  };
 };
 
 const newQueryBrowserQuery = (): ImmutableMap<string, any> =>
@@ -74,7 +82,7 @@ export default (state: UIState, action: UIAction): UIState => {
       activeApplication: ALL_APPLICATIONS_KEY,
       activePerspective: getDefaultPerspective(),
       createProjectMessage: '',
-      topologyDisplayFilters: getDefaultTopologyDisplayFilters(),
+      topologyFilters: getDefaultTopologyFilters(),
       overview: ImmutableMap({
         metrics: {},
         resources: ImmutableMap({}),
@@ -120,8 +128,8 @@ export default (state: UIState, action: UIAction): UIState => {
       return state.set('activeNamespace', ns);
     }
 
-    case ActionType.SetTopologyDisplayFilters:
-      return state.set('topologyDisplayFilters', action.payload.topologyDisplayFilters);
+    case ActionType.SetTopologyFilters:
+      return state.set('topologyFilters', action.payload.topologyFilters);
 
     case ActionType.BeginImpersonate:
       return state.set('impersonate', {
@@ -320,5 +328,4 @@ export const getActivePerspective = ({ UI }: RootState): string => UI.get('activ
 
 export const getActiveApplication = ({ UI }: RootState): string => UI.get('activeApplication');
 
-export const getTopologyDisplayFilters = ({ UI }: RootState): any =>
-  UI.get('topologyDisplayFilters');
+export const getTopologyFilters = ({ UI }: RootState): any => UI.get('topologyFilters');
