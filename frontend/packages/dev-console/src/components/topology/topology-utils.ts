@@ -370,7 +370,9 @@ export const transformTopologyData = (
 
   const knSvcResources: K8sResourceKind[] = _.get(resources, ['ksservices', 'data'], []);
   knSvcResources.length && getKnativeTopologyData(knSvcResources, NodeType.KnService);
-  const knEventSources: K8sResourceKind[] = getKnativeEventSources();
+  const knEventSources: K8sResourceKind[] = filters.display.eventSources
+    ? getKnativeEventSources()
+    : [];
   knEventSources.length && getKnativeTopologyData(knEventSources, NodeType.EventSource);
   const knRevResources: K8sResourceKind[] = _.get(resources, ['revisions', 'data'], []);
   knRevResources.length && getKnativeTopologyData(knRevResources, NodeType.Revision);
