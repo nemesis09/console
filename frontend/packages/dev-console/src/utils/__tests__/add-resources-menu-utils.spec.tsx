@@ -37,8 +37,7 @@ describe('addResourceMenuUtils: ', () => {
     expect(url.pathname).toBe('/import/ns/testproject1');
     expect(url.searchParams.get('importType')).toBe('git');
     expect(url.searchParams.get('application')).toBe('application-1');
-    expect(url.searchParams.get('isKnativeDisabled')).toBe('true');
-    expect(Array.from(url.searchParams.entries())).toHaveLength(3);
+    expect(Array.from(url.searchParams.entries())).toHaveLength(2);
   });
 
   it('should return the page url without application params in the url', () => {
@@ -55,8 +54,7 @@ describe('addResourceMenuUtils: ', () => {
     );
     expect(url.pathname).toBe('/deploy-image/ns/testproject1');
     expect(url.searchParams.get('application')).toBe('application-1');
-    expect(url.searchParams.get('isKnativeDisabled')).toBe('true');
-    expect(Array.from(url.searchParams.entries())).toHaveLength(2);
+    expect(Array.from(url.searchParams.entries())).toHaveLength(1);
   });
 
   it('should return the page url with proper queryparams for catalog flow', () => {
@@ -67,8 +65,7 @@ describe('addResourceMenuUtils: ', () => {
     );
     expect(url.pathname).toBe('/catalog/ns/testproject1');
     expect(url.searchParams.get('application')).toBe('application-1');
-    expect(url.searchParams.get('isKnativeDisabled')).toBe('true');
-    expect(Array.from(url.searchParams.entries())).toHaveLength(2);
+    expect(Array.from(url.searchParams.entries())).toHaveLength(1);
   });
 
   it('should return the page url with proper queryparams for dockerfile flow', () => {
@@ -80,8 +77,7 @@ describe('addResourceMenuUtils: ', () => {
     expect(url.pathname).toBe('/import/ns/testproject1');
     expect(url.searchParams.get('importType')).toBe('docker');
     expect(url.searchParams.get('application')).toBe('application-1');
-    expect(url.searchParams.get('isKnativeDisabled')).toBe('true');
-    expect(Array.from(url.searchParams.entries())).toHaveLength(3);
+    expect(Array.from(url.searchParams.entries())).toHaveLength(2);
   });
 
   it('should return the page url with proper queryparams for database flow', () => {
@@ -93,8 +89,7 @@ describe('addResourceMenuUtils: ', () => {
     expect(url.pathname).toBe('/catalog/ns/testproject1');
     expect(url.searchParams.get('category')).toBe('databases');
     expect(url.searchParams.get('application')).toBe('application-1');
-    expect(url.searchParams.get('isKnativeDisabled')).toBe('true');
-    expect(Array.from(url.searchParams.entries())).toHaveLength(3);
+    expect(Array.from(url.searchParams.entries())).toHaveLength(2);
   });
 
   it('it should return a valid kebabAction on invoking createKebabAction', () => {

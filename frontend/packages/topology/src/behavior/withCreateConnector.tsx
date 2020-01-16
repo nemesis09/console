@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { observer } from 'mobx-react';
+import { KebabItem } from '@console/internal/components/utils';
 import { hullPath } from '../utils/svg-utils';
 import DefaultCreateConnector from '../components/DefaultCreateConnector';
 import Point from '../geom/Point';
@@ -30,6 +31,7 @@ type CreateConnectorWidgetProps = {
     choice?: ConnectorChoice,
   ) => ConnectorChoice[] | void | undefined | null;
   renderConnector: ConnectorRenderer;
+  contextMenuClass?: string;
 } & CreateConnectorOptions;
 
 type CollectProps = {
@@ -58,6 +60,7 @@ const CreateConnectorWidget: React.FC<CreateConnectorWidgetProps> = observer((pr
     renderConnector,
     handleAngle = DEFAULT_HANDLE_ANGLE,
     handleLength = DEFAULT_HANDLE_LENGTH,
+    contextMenuClass,
   } = props;
   const [prompt, setPrompt] = React.useState<PromptData | null>(null);
   const [active, setActive] = React.useState(false);
@@ -162,6 +165,7 @@ const CreateConnectorWidget: React.FC<CreateConnectorWidgetProps> = observer((pr
       {prompt && (
         <ContextMenu
           reference={{ x: prompt.event.pageX, y: prompt.event.pageY }}
+          className={contextMenuClass}
           open
           onRequestClose={() => {
             setActive(false);
@@ -169,13 +173,13 @@ const CreateConnectorWidget: React.FC<CreateConnectorWidgetProps> = observer((pr
           }}
         >
           {prompt.choices.map((c) => (
-            <ContextMenuItem
-              key={c.label}
-              onClick={() => {
-                onCreate(prompt.element, prompt.target, prompt.event, c);
-              }}
-            >
-              {c.label}
+            <ContextMenuItem key={c.label}>
+              {
+                <KebabItem
+                  option={c}
+                  onClick={() => onCreate(prompt.element, prompt.target, prompt.event, c)}
+                />
+              }
             </ContextMenuItem>
           ))}
         </ContextMenu>
@@ -207,6 +211,7 @@ const defaultRenderConnector: ConnectorRenderer = (
 
 export const withCreateConnector = <P extends WithCreateConnectorProps & ElementProps>(
   onCreate: React.ComponentProps<typeof CreateConnectorWidget>['onCreate'],
+  contextMenuClass?: string,
   renderConnector: ConnectorRenderer = defaultRenderConnector,
   options?: CreateConnectorOptions,
 ) => (WrappedComponent: React.ComponentType<P>) => {
@@ -232,6 +237,7 @@ export const withCreateConnector = <P extends WithCreateConnectorProps & Element
             onCreate={onCreate}
             onKeepAlive={onKeepAlive}
             renderConnector={renderConnector}
+            contextMenuClass={contextMenuClass}
           />
         )}
       </>

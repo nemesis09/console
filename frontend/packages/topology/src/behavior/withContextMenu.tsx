@@ -32,7 +32,6 @@ export const withContextMenu = <E extends TopologyElement>(
           : e.currentTarget,
       );
     }, []);
-
     return (
       <>
         <WrappedComponent

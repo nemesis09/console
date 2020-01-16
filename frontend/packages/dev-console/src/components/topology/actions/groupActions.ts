@@ -55,6 +55,12 @@ const addResourcesMenu = (application: TopologyApplicationObject) => {
   const primaryResource = _.get(application.resources[0], ['resources', 'obj']);
   return addResourceMenu.map((menuItem) => menuItem(primaryResource, true));
 };
-export const groupActions = (application: TopologyApplicationObject): KebabOption[] => {
-  return [deleteGroup(application), ...addResourcesMenu(application)];
+
+export const groupActions = (
+  application: TopologyApplicationObject,
+  isConnectorActions?: boolean,
+): KebabOption[] => {
+  return !isConnectorActions
+    ? [deleteGroup(application), ...addResourcesMenu(application)]
+    : [...addResourcesMenu(application)];
 };

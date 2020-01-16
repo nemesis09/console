@@ -38,7 +38,6 @@ export const getAddPageUrl = (
     default:
       throw new Error('Invalid Import option provided');
   }
-  params.append('isKnativeDisabled', 'true');
   if (hasApplication && appGroup) {
     params.append('application', encodeURIComponent(appGroup));
   }

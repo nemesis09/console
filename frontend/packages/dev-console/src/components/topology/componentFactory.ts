@@ -169,7 +169,10 @@ class ComponentFactory {
         case TYPE_REVISION_TRAFFIC:
           return TrafficLink;
         case TYPE_WORKLOAD:
-          return withCreateConnector(createConnectorCallback(this.hasServiceBinding))(
+          return withCreateConnector(
+            createConnectorCallback(this.hasServiceBinding),
+            'odc-topology-context-menu',
+          )(
             withDndDrop<
               any,
               any,
@@ -220,6 +223,30 @@ class ComponentFactory {
                       document.getElementById('modal-container'),
                       'odc-topology-context-menu',
                     )(GraphComponent),
+                  ),
+                ),
+              );
+            case ModelKind.node:
+              return withCreateConnector(createConnectorCallback(this.hasServiceBinding))(
+                withDndDrop<
+                  any,
+                  any,
+                  { droppable?: boolean; hover?: boolean; canDrop?: boolean },
+                  NodeProps
+                >(nodeDropTargetSpec)(
+                  withEditReviewAccess('patch')(
+                    withDragNode(nodeDragSourceSpec(type))(
+                      withSelection(
+                        false,
+                        true,
+                      )(
+                        withContextMenu(
+                          workloadContextMenu,
+                          document.getElementById('modal-container'),
+                          'odc-topology-context-menu',
+                        )(WorkloadNode),
+                      ),
+                    ),
                   ),
                 ),
               );
