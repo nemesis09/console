@@ -23,9 +23,15 @@ const onKebabOptionClick = (option: KebabOption) => {
   }
 };
 
-const createMenuItems = (actions: KebabMenuOption[]) =>
-  actions.map((option) =>
-    isKebabSubMenu(option) ? (
+export const createMenuItems = (actions: KebabMenuOption[], onOptionClick?) => {
+  console.log(actions);
+  return actions.map((option) =>
+    onOptionClick ? (
+      <ContextMenuItem
+        key={option.label}
+        component={<KebabItem option={option} onClick={() => onOptionClick(option)} />}
+      />
+    ) : isKebabSubMenu(option) ? (
       <ContextSubMenuItem label={option.label} key={option.label}>
         {createMenuItems(option.children)}
       </ContextSubMenuItem>
@@ -36,7 +42,7 @@ const createMenuItems = (actions: KebabMenuOption[]) =>
       />
     ),
   );
-
+};
 export const workloadContextMenu = (element: Node) =>
   createMenuItems(kebabOptionsToMenu(workloadActions(element.getData())));
 

@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { observer } from 'mobx-react';
-import { KebabItem } from '@console/internal/components/utils';
 import { hullPath } from '../utils/svg-utils';
 import DefaultCreateConnector from '../components/DefaultCreateConnector';
 import Point from '../geom/Point';
@@ -28,7 +27,7 @@ type CreateConnectorWidgetProps = {
     element: Node,
     target: Node | Graph,
     event: DragEvent,
-    choice?: ConnectorChoice,
+    choice?: ConnectorChoice | React.ReactElement,
   ) => ConnectorChoice[] | void | undefined | null;
   renderConnector: ConnectorRenderer;
   contextMenuClass?: string;
@@ -44,7 +43,7 @@ type PromptData = {
   element: Node;
   target: Node | Graph;
   event: DragEvent;
-  choices: ConnectorChoice[];
+  choices: (ConnectorChoice | React.ReactElement)[];
 };
 
 export const CREATE_CONNECTOR_DROP_TYPE = '#createConnector#';
@@ -138,6 +137,8 @@ const CreateConnectorWidget: React.FC<CreateConnectorWidgetProps> = observer((pr
   element.translateFromParent(startPoint);
   element.translateFromParent(endPoint);
 
+  console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@', prompt ? prompt.choices : 'null');
+
   return (
     <>
       <Layer id="top">
@@ -172,16 +173,18 @@ const CreateConnectorWidget: React.FC<CreateConnectorWidgetProps> = observer((pr
             onKeepAlive(false);
           }}
         >
-          {prompt.choices.map((c) => (
-            <ContextMenuItem key={c.label}>
-              {
-                <KebabItem
-                  option={c}
-                  onClick={() => onCreate(prompt.element, prompt.target, prompt.event, c)}
-                />
-              }
-            </ContextMenuItem>
-          ))}
+          {React.isValidElement(prompt.choices)
+            ? prompt.choices.map((c, index) => <div key={index}>{c}</div>)
+            : prompt.choices.map((c: ConnectorChoice) => (
+                <ContextMenuItem
+                  key={c.label}
+                  onClick={() => {
+                    onCreate(prompt.element, prompt.target, prompt.event, c);
+                  }}
+                >
+                  {c.label}
+                </ContextMenuItem>
+              ))}
         </ContextMenu>
       )}
     </>

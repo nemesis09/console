@@ -16,7 +16,7 @@ import {
   isGraph,
 } from '@console/topology';
 import { K8sResourceKind, referenceFor } from '@console/internal/module/k8s';
-import { history, KebabOption } from '@console/internal/components/utils';
+import { history, KebabOption, KebabItem } from '@console/internal/components/utils';
 import { createConnection } from './components/createConnection';
 import { removeConnection } from './components/removeConnection';
 import { moveNodeToGroup } from './components/moveNodeToGroup';
@@ -25,6 +25,7 @@ import './components/GraphComponent.scss';
 import { graphActions } from './actions/graphActions';
 import { groupActions } from './actions/groupActions';
 import { TopologyApplicationObject } from './topology-types';
+import { graphContextMenu, createMenuItems } from './nodeContextMenu';
 
 type GraphProps = {
   element: Graph;
@@ -249,12 +250,12 @@ const createConnectorCallback = (serviceBinding: boolean) => (
   dragEvent,
   choice,
 ): any[] | null => {
-  const onKebabOptionClick = (option: KebabOption, sourceNode: Node) => {
+  const onKebabOptionClick = (option: KebabOption) => {
     if (option.callback) {
       option.callback();
     }
     if (option.href) {
-      const sourceObj = _.get(sourceNode.getData(), ['resources', 'obj'], null);
+      const sourceObj = _.get(source.getData(), ['resources', 'obj'], null);
       const hrefWithContext = `${option.href}&contextSource=${referenceFor(sourceObj)}/${
         sourceObj.metadata.name
       }`;
@@ -262,13 +263,21 @@ const createConnectorCallback = (serviceBinding: boolean) => (
     }
   };
 
-  if (choice) {
-    onKebabOptionClick(choice, source);
-  }
+  // if (choice) {
+  //   onKebabOptionClick(choice);
+  // }
 
   if (isGraph(target)) {
-    return graphActions(target.getController().getElements());
+    return createMenuItems(
+      graphActions(target.getController().getElements()),
+      choice ? onKebabOptionClick : undefined,
+    );
+    // return [
+    //   { label: 'Create Annotation', color: 'red' },
+    //   { label: 'Create Binding', color: 'green' },
+    // ];
   }
+
   if (target.isGroup()) {
     const applicationGroup: TopologyApplicationObject = {
       id: target.getId(),
