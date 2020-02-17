@@ -1,27 +1,9 @@
 import * as React from 'react';
 import { K8sResourceKind } from '@console/internal/module/k8s';
-import { Firehose, FirehoseResult } from '@console/internal/components/utils';
+import { Firehose } from '@console/internal/components/utils';
 import { createModalLauncher, ModalComponentProps } from '@console/internal/components/factory';
-import {
-  transformTrafficSplitingData,
-  knativeServingResourcesTrafficSplitting,
-} from '../../utils/traffic-splitting-utils';
-import TrafficSplitting from './TrafficSplitting';
-
-type ControllerProps = {
-  loaded?: boolean;
-  obj: K8sResourceKind;
-  resources?: {
-    configurations: FirehoseResult;
-    revisions: FirehoseResult;
-  };
-};
-
-const Controller: React.FC<ControllerProps> = (props) => {
-  const { loaded, obj, resources } = props;
-  const revisions = transformTrafficSplitingData(obj, resources);
-  return loaded ? <TrafficSplitting {...props} service={obj} revisions={revisions} /> : null;
-};
+import { knativeServingResourcesTrafficSplitting } from '../../utils/traffic-splitting-utils';
+import Controller from './Controller';
 
 type TrafficSplittingControllerProps = {
   obj: K8sResourceKind;
