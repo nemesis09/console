@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as _ from 'lodash-es';
 import { Converter } from 'showdown';
 import * as sanitizeHtml from 'sanitize-html';
+import { MarkdownHighlightExtension } from '@console/shared';
 
 const tableTags = ['table', 'thead', 'tbody', 'tr', 'th', 'td'];
 
@@ -11,6 +12,7 @@ const markdownConvert = (markdown) => {
     openLinksInNewWindow: true,
     strikethrough: true,
     emoji: true,
+    extensions: ['quickstart'],
   }).makeHtml(markdown);
 
   return sanitizeHtml(unsafeHtml, {
@@ -33,10 +35,12 @@ const markdownConvert = (markdown) => {
       'li',
       'code',
       'pre',
+      'button',
       ...tableTags,
     ],
     allowedAttributes: {
-      a: ['href', 'target', 'rel'],
+      a: ['href', 'target', 'rel', 'data-*'],
+      button: ['class', 'data-*'],
     },
     allowedSchemes: ['http', 'https', 'mailto'],
     transformTags: {
@@ -139,13 +143,18 @@ export class SyncMarkdownView extends React.Component<
         content || emptyMsg || 'Not available',
       )}</div></body>`;
     return (
-      <iframe
-        sandbox="allow-popups allow-same-origin"
-        srcDoc={contents}
-        style={{ border: '0px', display: 'block', width: '100%', height: '0' }}
-        ref={(r) => (this.frame = r)}
-        onLoad={() => this.updateDimensions()}
-      />
+      <>
+        <iframe
+          sandbox="allow-popups allow-same-origin"
+          srcDoc={contents}
+          style={{ border: '0px', display: 'block', width: '100%', height: '0' }}
+          ref={(r) => (this.frame = r)}
+          onLoad={() => this.updateDimensions()}
+        />
+        {this.frame?.contentDocument && (
+          <MarkdownHighlightExtension key={content} docContext={this.frame.contentDocument} />
+        )}
+      </>
     );
   }
 }
