@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { SyncMarkdownView } from '@console/internal/components/markdown-view';
+import { MarkdownHighlightExtension } from '@console/shared';
 import { QuickStartTask, QuickStartTaskStatus } from '../utils/quick-start-types';
 import TaskHeader from './QuickStartTaskHeader';
 import QuickStartTaskReview from './QuickStartTaskReview';
@@ -47,7 +48,11 @@ const QuickStartTasks: React.FC<QuickStartTaskProps> = ({
                 isActiveTask={isActiveTask}
                 onTaskSelect={onTaskSelect}
               />
-              <SyncMarkdownView content={taskInstructions} />
+              <SyncMarkdownView
+                content={taskInstructions}
+                extensions={['quickstart']}
+                additionalEffectsComponent={MarkdownHighlightExtension}
+              />
               {isActiveTask && taskStatus !== QuickStartTaskStatus.INIT && review && (
                 <QuickStartTaskReview
                   review={review}

@@ -4,6 +4,7 @@ import { Spotlight } from '../spotlight';
 import { HIGHLIGHT_REGEXP } from './highlight-consts';
 
 extension('quickstart', () => {
+  // debugger;
   return [
     {
       type: 'lang',
@@ -19,11 +20,13 @@ type MarkdownHighlightExtensionProps = {
   docContext: HTMLDocument;
 };
 const MarkdownHighlightExtension: React.FC<MarkdownHighlightExtensionProps> = ({ docContext }) => {
+  // debugger;
   const [selector, setSelector] = React.useState<string>(null);
   React.useEffect(() => {
-    const elements = docContext.querySelectorAll('[data-highlight]');
+    const elements = docContext?.querySelectorAll('[data-highlight]');
     let timeoutId: NodeJS.Timeout;
     function startHighlight(e) {
+      // debugger;
       const highlightId = e.target.getAttribute('data-highlight');
       if (!highlightId) {
         return;
@@ -33,10 +36,10 @@ const MarkdownHighlightExtension: React.FC<MarkdownHighlightExtensionProps> = ({
         setSelector(`[data-tour-id="${highlightId}"]`);
       }, 0);
     }
-    elements.forEach((elm) => elm.addEventListener('click', startHighlight));
+    elements && elements.forEach((elm) => elm.addEventListener('click', startHighlight));
     return () => {
       clearTimeout(timeoutId);
-      elements.forEach((elm) => elm.removeEventListener('click', startHighlight));
+      elements && elements.forEach((elm) => elm.removeEventListener('click', startHighlight));
     };
   }, [docContext]);
   if (!selector) {

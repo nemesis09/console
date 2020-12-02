@@ -2,17 +2,16 @@ import * as React from 'react';
 import * as _ from 'lodash-es';
 import { Converter } from 'showdown';
 import * as sanitizeHtml from 'sanitize-html';
-import { MarkdownHighlightExtension } from '@console/shared';
 
 const tableTags = ['table', 'thead', 'tbody', 'tr', 'th', 'td'];
 
-const markdownConvert = (markdown) => {
+const markdownConvert = (markdown, extensions?: string[]) => {
   const unsafeHtml = new Converter({
     tables: true,
     openLinksInNewWindow: true,
     strikethrough: true,
     emoji: true,
-    extensions: ['quickstart'],
+    extensions, // choosing to use the extension
   }).makeHtml(markdown);
 
   return sanitizeHtml(unsafeHtml, {
@@ -56,6 +55,8 @@ export class SyncMarkdownView extends React.Component<
     styles?: string;
     exactHeight?: boolean;
     truncateContent?: boolean;
+    extensions?: string[];
+    additionalEffectsComponent?: any;
   },
   {}
 > {
@@ -142,6 +143,7 @@ export class SyncMarkdownView extends React.Component<
       <body class="pf-m-redhat-font"><div style="overflow-y: auto;">${markdownConvert(
         content || emptyMsg || 'Not available',
       )}</div></body>`;
+    const AdditionalEffectsComponent = this.props.additionalEffectsComponent;
     return (
       <>
         <iframe
@@ -151,8 +153,8 @@ export class SyncMarkdownView extends React.Component<
           ref={(r) => (this.frame = r)}
           onLoad={() => this.updateDimensions()}
         />
-        {this.frame?.contentDocument && (
-          <MarkdownHighlightExtension key={content} docContext={this.frame.contentDocument} />
+        {this.props.extensions && this.props.additionalEffectsComponent && (
+          <AdditionalEffectsComponent key={content} docContext={this.frame?.contentDocument} />
         )}
       </>
     );
