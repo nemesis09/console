@@ -22,6 +22,7 @@ import {
   PipelineTaskNodeModel,
   BuilderNodeModelData,
   PipelineRunAfterNodeModelData,
+  FinallyNodeModelData,
 } from './types';
 
 const createGenericNode: NodeCreatorSetup = (type, width?) => (name, data) => ({
@@ -48,7 +49,12 @@ export const createBuilderNode: NodeCreator<BuilderNodeModelData> = createGeneri
   NodeType.BUILDER_NODE,
 );
 
+export const createFinallyNode: NodeCreator<FinallyNodeModelData> = createGenericNode(
+  NodeType.FINALLY_NODE,
+);
+
 export const getNodeCreator = (type: NodeType): NodeCreator<PipelineRunAfterNodeModelData> => {
+  // console.log('#### type', type);
   switch (type) {
     case NodeType.TASK_LIST_NODE:
       return createTaskListNode;
@@ -56,6 +62,8 @@ export const getNodeCreator = (type: NodeType): NodeCreator<PipelineRunAfterNode
       return createBuilderNode;
     case NodeType.SPACER_NODE:
       return createSpacerNode;
+    case NodeType.FINALLY_NODE:
+      return createFinallyNode;
     case NodeType.TASK_NODE:
     default:
       return createTaskNode;
@@ -170,13 +178,21 @@ export const tasksToNodes = (
   pipeline?: PipelineKind,
   pipelineRun?: PipelineRunKind,
 ): PipelineMixedNodeModel[] => {
-  const nodeList: PipelineTaskNodeModel[] = taskList.map((task) =>
-    createTaskNode(task.name, {
+  const nodeList: PipelineTaskNodeModel[] = taskList.map((task) => {
+    // console.log('#### task in task to nodes', task);
+    if (task.name === 'Finally') {
+      return createFinallyNode(task.name, {
+        task,
+        pipeline,
+        pipelineRun,
+      });
+    }
+    return createTaskNode(task.name, {
       task,
       pipeline,
       pipelineRun,
-    }),
-  );
+    });
+  });
 
   return handleParallelToParallelNodes(nodeList);
 };
@@ -227,11 +243,16 @@ export const getTopologyNodesEdges = (
   pipeline: PipelineKind,
   pipelineRun?: PipelineRunKind,
 ): { nodes: PipelineMixedNodeModel[]; edges: PipelineEdgeModel[] } => {
+  // console.log(
+  //   '### getPipelineTasks(pipeline, pipelineRun)',
+  //   getPipelineTasks(pipeline, pipelineRun),
+  // );
   const taskList: PipelineVisualizationTaskItem[] = _.flatten(
     getPipelineTasks(pipeline, pipelineRun),
   );
   const nodes: PipelineMixedNodeModel[] = tasksToNodes(taskList, pipeline, pipelineRun);
   const edges: PipelineEdgeModel[] = getEdgesFromNodes(nodes);
+  // console.log('### nodes edges', nodes, edges);
 
   return { nodes, edges };
 };

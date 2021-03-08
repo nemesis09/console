@@ -28,6 +28,7 @@ import {
   TaskRunKind,
   TektonParam,
   TektonResultsRun,
+  // TaskKind,
 } from '../types';
 import { getLatestRun, runStatus } from './pipeline-augment';
 import { pipelineRunFilterReducer, pipelineRunStatus } from './pipeline-filter-reducer';
@@ -71,6 +72,10 @@ export interface PipelineVisualizationTaskItem {
   params?: object;
   runAfter?: string[];
   taskRef?: PipelineTaskRef;
+}
+
+export interface FinallyTaskItems extends PipelineVisualizationTaskItem {
+  finallyTasks?: PipelineVisualizationTaskItem[];
 }
 
 export const TaskStatusClassNameMap = {
@@ -124,13 +129,8 @@ export const PipelineResourceListFilterLabels = {
   [PipelineResourceListFilterId.CloudEvent]: 'Cloud Event',
 };
 
-/**
- * Appends the pipeline run status to each tasks in the pipeline.
- * @param pipeline
- * @param pipelineRun
- */
-export const appendPipelineRunStatus = (pipeline, pipelineRun) => {
-  return _.map(pipeline.spec.tasks, (task) => {
+export const appendTaskStatus = (tasks, pipelineRun) =>
+  _.map(tasks, (task) => {
     if (!pipelineRun.status) {
       return task;
     }
@@ -157,6 +157,17 @@ export const appendPipelineRunStatus = (pipeline, pipelineRun) => {
     }
     return mTask;
   });
+
+/**
+ * Appends the pipeline run status to each tasks in the pipeline.
+ * @param pipeline
+ * @param pipelineRun
+ */
+export const appendPipelineRunStatus = (pipeline, pipelineRun) => {
+  const tasksWithStatus = appendTaskStatus(pipeline.spec.tasks, pipelineRun);
+  const finallyTasksWithStatus =
+    pipeline.spec.finally && appendTaskStatus(pipeline.spec.finally, pipelineRun);
+  return { tasksWithStatus, finallyTasksWithStatus };
 };
 export const hasInlineTaskSpec = (tasks: PipelineTask[] = []): boolean =>
   tasks.some((task) => !!(task.taskSpec && !task.taskRef));
@@ -169,13 +180,21 @@ export const getPipelineTasks = (
     kind: 'PipelineRun',
     spec: {},
   },
-): PipelineVisualizationTaskItem[][] => {
+): FinallyTaskItems[][] => {
   // Each unit in 'out' array is termed as stage | out = [stage1 = [task1], stage2 = [task2,task3], stage3 = [task4]]
   const out = [];
-  if (!pipeline.spec?.tasks || _.isEmpty(pipeline.spec.tasks)) {
+  if (
+    !pipeline.spec?.tasks ||
+    _.isEmpty(pipeline.spec.tasks) ||
+    !pipeline.spec?.finally ||
+    _.isEmpty(pipeline.spec.finally)
+  ) {
     return out;
   }
-  const taskList = appendPipelineRunStatus(pipeline, pipelineRun);
+  const {
+    tasksWithStatus: taskList,
+    finallyTasksWithStatus: finallyTaskList,
+  } = appendPipelineRunStatus(pipeline, pipelineRun);
 
   // Step 1: Push all nodes without any dependencies in different stages
   taskList.forEach((task) => {
@@ -243,6 +262,19 @@ export const getPipelineTasks = (
       }
     }
   });
+
+  // Step 4: Push finally tasks
+  // console.log('### out array in getPipelineTasks', out);
+  // finallyTaskList && out.push([]);
+  finallyTaskList &&
+    out.push([
+      {
+        name: 'Finally',
+        runAfter: [out[out.length - 1][0].name],
+        taskRef: { kind: 'finally', name: 'Finally' },
+        finallyTasks: finallyTaskList,
+      },
+    ]);
   return out;
 };
 

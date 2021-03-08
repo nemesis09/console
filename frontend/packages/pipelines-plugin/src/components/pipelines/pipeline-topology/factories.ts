@@ -14,6 +14,7 @@ import TaskNode from './TaskNode';
 import TaskEdge from './TaskEdge';
 import TaskListNode from './TaskListNode';
 import { getLayoutData } from './utils';
+import FinallyTasksNode from './FinallyTasksNode';
 
 export const componentFactory: ComponentFactory = (kind: ModelKind, type: string) => {
   switch (kind) {
@@ -23,8 +24,10 @@ export const componentFactory: ComponentFactory = (kind: ModelKind, type: string
       return TaskEdge;
     case ModelKind.node:
       switch (type) {
-        case NodeType.TASK_NODE:
+        case NodeType.TASK_NODE: {
+          // console.log('### in switch case task case', kind, type);
           return TaskNode;
+        }
         case NodeType.SPACER_NODE:
           return SpacerNode;
         case NodeType.TASK_LIST_NODE:
@@ -33,6 +36,10 @@ export const componentFactory: ComponentFactory = (kind: ModelKind, type: string
           return InvalidTaskListNode;
         case NodeType.BUILDER_NODE:
           return BuilderNode;
+        case NodeType.FINALLY_NODE: {
+          // console.log('### in switch case finally case', kind, type);
+          return FinallyTasksNode;
+        }
         default:
           return undefined;
       }

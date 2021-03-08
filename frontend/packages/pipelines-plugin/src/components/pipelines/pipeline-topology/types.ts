@@ -36,6 +36,12 @@ export type TaskNodeModelData = PipelineRunAfterNodeModelData & {
   pipelineRun?: PipelineRunKind;
 };
 
+export type FinallyNodeModelData = PipelineRunAfterNodeModelData & {
+  finallyTasks?: PipelineVisualizationTaskItem[];
+  pipeline?: PipelineKind;
+  pipelineRun?: PipelineRunKind;
+};
+
 // Graph Models
 type PipelineNodeModel<D extends PipelineRunAfterNodeModelData> = NodeModel & {
   data: D;

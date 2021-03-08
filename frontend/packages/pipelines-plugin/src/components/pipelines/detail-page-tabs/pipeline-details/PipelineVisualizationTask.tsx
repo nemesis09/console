@@ -101,7 +101,7 @@ export const PipelineVisualizationTask: React.FC<PipelineVisualizationTaskProp> 
   }
 
   let resources;
-  if (task.taskRef.kind === ClusterTaskModel.kind) {
+  if (task?.taskRef?.kind === ClusterTaskModel.kind) {
     resources = [
       {
         kind: referenceForModel(ClusterTaskModel),
@@ -113,7 +113,7 @@ export const PipelineVisualizationTask: React.FC<PipelineVisualizationTaskProp> 
     resources = [
       {
         kind: referenceForModel(TaskModel),
-        name: task.taskRef.name,
+        name: task?.taskRef?.name,
         namespace,
         prop: 'task',
       },

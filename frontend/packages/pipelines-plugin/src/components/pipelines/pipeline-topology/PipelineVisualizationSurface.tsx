@@ -61,6 +61,7 @@ const PipelineVisualizationSurface: React.FC<PipelineVisualizationSurfaceProps> 
       vis.fromModel(model);
       vis.getGraph().layout();
     }
+    // console.log('### visualization', vis);
   }, [vis, model, onLayoutUpdate]);
 
   if (!vis) return null;
