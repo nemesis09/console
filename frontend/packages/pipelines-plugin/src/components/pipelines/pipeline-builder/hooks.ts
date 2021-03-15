@@ -15,12 +15,16 @@ import { PipelineVisualizationTaskItem } from '../../../utils/pipeline-utils';
 import { AddNodeDirection } from '../pipeline-topology/const';
 import {
   PipelineBuilderTaskNodeModel,
+  PipelineFinallyNodeModel,
   PipelineMixedNodeModel,
   PipelineTaskListNodeModel,
 } from '../pipeline-topology/types';
 import {
+  createBuilderFinallyNode,
   createInvalidTaskListNode,
   createTaskListNode,
+  getFinallyTaskHeight,
+  getLastRegularTasks,
   handleParallelToParallelNodes,
   tasksToBuilderNodes,
 } from '../pipeline-topology/utils';
@@ -30,6 +34,7 @@ import {
   TaskErrorMap,
   UpdateErrors,
   UpdateOperationAddData,
+  UpdateOperationConvertToFinallyTaskData,
   UpdateOperationConvertToTaskData,
   UpdateOperationFixInvalidTaskListData,
   UpdateTasksCallback,
@@ -77,6 +82,77 @@ export const useTasks = (namespace?: string): UseTasks => {
   };
 };
 
+const useConnectFinally = (
+  namespace,
+  nodes,
+  taskGroup: PipelineBuilderTaskGroup,
+  onTaskSelection: SelectTaskCallback,
+  onUpdateTasks: UpdateTasksCallback,
+  tasksInError: TaskErrorMap,
+): PipelineMixedNodeModel => {
+  const { clusterTasks, namespacedTasks } = useTasks(namespace);
+  const taskGroupRef = React.useRef(taskGroup);
+  taskGroupRef.current = taskGroup;
+  const addNewFinallyListNode = (
+    resource: TaskKind,
+    name: string,
+    listTask: string,
+    runAfter?: string[],
+  ) => {
+    const data: UpdateOperationConvertToFinallyTaskData = { resource, name, runAfter, listTask };
+    onUpdateTasks(taskGroupRef.current, { type: UpdateOperationType.ADD_FINALLY_LIST_TASK, data });
+  };
+  // TODO: Cleanup in ODC-3165
+  const getTask = (taskRef: PipelineTaskRef) => {
+    if (taskRef?.kind === ClusterTaskModel.kind) {
+      return clusterTasks?.find((task) => task.metadata.name === taskRef?.name);
+    }
+    return namespacedTasks?.find((task) => task.metadata.name === taskRef?.name);
+  };
+
+  const convertListToFinallyTask = (resource: TaskKind, name: string) => {
+    const data: UpdateOperationConvertToTaskData = { resource, name };
+    onUpdateTasks(taskGroupRef.current, {
+      type: UpdateOperationType.CONVERT_LIST_TO_FINALLY_TASK,
+      data,
+    });
+  };
+  const allTasksLength = taskGroup.finallyTasks.length + taskGroup.finallyListTasks.length;
+  const finallyNodeName = `finally-node-${taskGroup.finallyTasks.length}-${taskGroup.finallyListTasks.length}`;
+  const regularRunAfters = getLastRegularTasks(nodes);
+
+  const finallyGroupNode: PipelineFinallyNodeModel = createBuilderFinallyNode(
+    getFinallyTaskHeight(allTasksLength, false),
+  )(finallyNodeName, {
+    isFinallyTask: true,
+    namespaceTaskList: namespacedTasks,
+    clusterTaskList: clusterTasks,
+    task: {
+      isFinallyTask: true,
+      name: finallyNodeName,
+      runAfter: regularRunAfters,
+      addNewFinallyListNode,
+      finallyTasks: taskGroup.finallyTasks.map((ft) => ({
+        ...ft,
+        onTaskSelection: () => onTaskSelection(ft, getTask(ft.taskRef), true),
+        error: getErrorMessage(nodeTaskErrors, tasksInError)(ft.name),
+        selected: taskGroup.highlightedIds.includes(ft.name),
+        disableTooltip: true,
+      })),
+      finallyListTasks: taskGroup.finallyListTasks.map((flt) => ({
+        ...flt,
+        convertList: (resource: TaskKind) => convertListToFinallyTask(resource, flt.name),
+        onRemoveTask: () => {
+          onUpdateTasks(taskGroupRef.current, {
+            type: UpdateOperationType.DELETE_LIST_TASK,
+            data: { listTaskName: flt.name },
+          });
+        },
+      })),
+    },
+  });
+  return finallyGroupNode;
+};
 type UseNodes = {
   nodes: PipelineMixedNodeModel[];
   tasksCount: number;
@@ -175,7 +251,7 @@ export const useNodes = (
       ? tasksToBuilderNodes(
           validTaskList,
           onNewListNode,
-          (task) => onTaskSelection(task, getTask(task.taskRef)),
+          (task) => onTaskSelection(task, getTask(task.taskRef), false),
           getErrorMessage(nodeTaskErrors, tasksInError),
           taskGroup.highlightedIds,
         )
@@ -193,16 +269,24 @@ export const useNodes = (
 
   const localTaskCount = namespacedTasks?.length || 0;
   const clusterTaskCount = clusterTasks?.length || 0;
-
+  const finallyNode = useConnectFinally(
+    namespace,
+    nodes,
+    taskGroup,
+    onTaskSelection,
+    onUpdateTasks,
+    tasksInError,
+  );
   return {
     tasksCount: localTaskCount + clusterTaskCount,
     tasksLoaded: !!namespacedTasks && !!clusterTasks,
     loadingTasksError: errorMsg,
-    nodes,
+    nodes: [...nodes, finallyNode],
   };
 };
 
 export const useResourceValidation = (
+  finallyTasks: PipelineTask[],
   tasks: PipelineTask[],
   resourceValues: TektonResource[],
   workspaceValues: PipelineWorkspace[],
@@ -213,7 +297,7 @@ export const useResourceValidation = (
   React.useEffect(() => {
     const resourceNames = resourceValues.map((r) => r.name);
 
-    const errors = tasks.reduce((acc, task) => {
+    const errors = [...tasks, ...finallyTasks].reduce((acc, task) => {
       const output = task.resources?.outputs || [];
       const input = task.resources?.inputs || [];
       const missingResources = [...output, ...input].filter(
@@ -262,5 +346,13 @@ export const useResourceValidation = (
       }
       onError(outputErrors);
     }
-  }, [tasks, resourceValues, workspaceValues, onError, previousErrorIds, setPreviousErrorIds]);
+  }, [
+    tasks,
+    resourceValues,
+    workspaceValues,
+    onError,
+    previousErrorIds,
+    setPreviousErrorIds,
+    finallyTasks,
+  ]);
 };
