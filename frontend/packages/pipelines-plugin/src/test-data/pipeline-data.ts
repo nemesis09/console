@@ -290,13 +290,17 @@ const pipelineSpec: PipelineSpecData = {
     tasks: [
       {
         name: 'hello-world-1',
-        taskRef: { name: 'hello-world-1' },
+        taskRef: { kind: 'Task', name: 'hello-world-1' },
+      },
+      {
+        name: 'hello-world-2',
+        taskRef: { kind: 'Task', name: 'hello-world-2' },
       },
     ],
     finally: [
       {
         name: 'run-anyway',
-        taskRef: { name: 'run-anyway' },
+        taskRef: { kind: 'Task', name: 'run-anyway' },
       },
     ],
   },
@@ -2035,6 +2039,15 @@ export const pipelineTestData: PipelineTestData = {
           taskRuns: {
             'pipeline-p1bun0-hello-world-1-rlj9b': {
               pipelineTaskName: 'hello-world-1',
+              status: {
+                completionTime: '2019-12-10T11:18:38Z',
+                conditions: [{ status: 'True', type: 'Succeeded' }],
+                podName: 'test',
+                startTime: '2019-12-10T11:18:38Z',
+              },
+            },
+            'pipeline-p1bun0-hello-world-2-wccp2': {
+              pipelineTaskName: 'hello-world-2',
               status: {
                 completionTime: '2019-12-10T11:18:38Z',
                 conditions: [{ status: 'True', type: 'Succeeded' }],

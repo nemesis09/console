@@ -18,6 +18,12 @@
     overflow: hidden;
   }
 
+  &__task-type {
+    line-height: 1.5em;
+    max-height: 3em;
+    margin: 0 auto 10px auto;
+  }
+
   &__step {
     display: flex;
     margin-bottom: var(--pf-global--spacer--xs);
